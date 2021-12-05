@@ -20,6 +20,18 @@ struct Line {
     end: Point,
 }
 
+impl FromStr for Line {
+    type Err = ParseIntError;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        let sides: Vec<&str> = s.split(" -> ").collect();
+        Ok(Line {
+            start: sides[0].parse().unwrap(),
+            end: sides[1].parse().unwrap(),
+        })
+    }
+}
+
 impl Line {
     fn is_horizontal(&self) -> bool {
         self.start.1 == self.end.1
@@ -57,44 +69,22 @@ impl Line {
         }
         if include_diagonals && self.is_diagonal() {
             let x_rev = self.start.0 < self.end.0;
-            let x_range = if x_rev {
-                self.start.0..=self.end.0
+            let x_range: Vec<i32> = if x_rev {
+                (self.start.0..=self.end.0).collect()
             } else {
-                self.end.0..=self.start.0
+                (self.end.0..=self.start.0).rev().collect()
             };
             let y_rev = self.start.1 < self.end.1;
-            let y_range = if y_rev {
-                self.start.1..=self.end.1
+            let y_range: Vec<i32> = if y_rev {
+                (self.start.1..=self.end.1).collect()
             } else {
-                self.end.1..=self.start.1
+                (self.end.1..=self.start.1).rev().collect()
             };
-            for (x, y) in (if x_rev {
-                x_range.rev().collect::<Vec<i32>>()
-            } else {
-                x_range.collect::<Vec<i32>>()
-            })
-            .iter()
-            .zip(if y_rev {
-                y_range.rev().collect::<Vec<i32>>()
-            } else {
-                y_range.collect::<Vec<i32>>()
-            }) {
+            for (x, y) in (x_range).iter().zip(y_range) {
                 points.push(Point(*x, y));
             }
         }
         points
-    }
-}
-
-impl FromStr for Line {
-    type Err = ParseIntError;
-
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let sides: Vec<&str> = s.split(" -> ").collect();
-        Ok(Line {
-            start: sides[0].parse().unwrap(),
-            end: sides[1].parse().unwrap(),
-        })
     }
 }
 
