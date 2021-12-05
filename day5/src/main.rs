@@ -28,7 +28,7 @@ impl Line {
         self.start.0 == self.end.0
     }
 
-    fn all_points(&self) -> Vec<Point> {
+    fn all_points(&self, include_diagonals: bool) -> Vec<Point> {
         let mut points: Vec<Point> = vec![];
         if self.is_vertical() {
             if self.start.1 < self.end.1 {
@@ -68,6 +68,22 @@ impl FromStr for Line {
     }
 }
 
+fn count_overlaps(points: &[Point]) -> u32 {
+    let mut points_hash = HashMap::new();
+    for point in points {
+        let entry = points_hash.entry(point).or_insert(0);
+        *entry += 1;
+    }
+
+    let mut overlaps: u32 = 0;
+    for (_key, value) in points_hash {
+        if value > 1 {
+            overlaps += 1;
+        }
+    }
+    overlaps
+}
+
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let file_lines = utils::read_file(&args[1]);
@@ -77,24 +93,12 @@ fn main() {
         .map(|l| l.parse().unwrap())
         .filter(|l: &Line| l.is_vertical() | l.is_horizontal())
         .collect();
-    let all_line_points: Vec<Point> = lines.iter().flat_map(|line| line.all_points()).collect();
-    let mut points_hash = HashMap::new();
-    for point in all_line_points {
-        let entry = points_hash.entry(point).or_insert(0);
-        *entry += 1;
-    }
-
-    let mut overlaps: u32 = 0;
-    for (key, value) in points_hash {
-        if value > 1 {
-            overlaps += 1;
-        }
-        // println!("{}.{} {}", key.0, key.1, value);
-    }
-    println!("Overlaps: {}", overlaps);
-
-    // let res: Vec<Point> = points_hash.iter().filter(|val| val > 1).collect();
-    // println!("{:?}", res);
+    let all_line_points: Vec<Point> = lines
+        .iter()
+        .flat_map(|line| line.all_points(false))
+        .collect();
+    let part_1_overlaps = count_overlaps(&all_line_points);
+    println!("Overlaps: {}", part_1_overlaps);
 }
 
 #[test]
