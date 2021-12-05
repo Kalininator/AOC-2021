@@ -28,17 +28,20 @@ impl Line {
         self.start.0 == self.end.0
     }
 
+    fn is_diagonal(&self) -> bool {
+        (self.start.0 - self.end.0).abs() == (self.start.1 - self.end.1).abs()
+    }
+
     fn all_points(&self, include_diagonals: bool) -> Vec<Point> {
         let mut points: Vec<Point> = vec![];
         if self.is_vertical() {
-            if self.start.1 < self.end.1 {
-                for i in self.start.1..=self.end.1 {
-                    points.push(Point(self.start.0, i));
-                }
+            let range = if self.start.1 < self.end.1 {
+                self.start.1..=self.end.1
             } else {
-                for i in self.end.1..=self.start.1 {
-                    points.push(Point(self.start.0, i));
-                }
+                self.end.1..=self.start.1
+            };
+            for i in range {
+                points.push(Point(self.start.0, i));
             }
         }
         if self.is_horizontal() {
@@ -50,6 +53,33 @@ impl Line {
                 for i in self.end.0..=self.start.0 {
                     points.push(Point(i, self.start.1));
                 }
+            }
+        }
+        if include_diagonals && self.is_diagonal() {
+            let x_rev = self.start.0 < self.end.0;
+            let x_range = if x_rev {
+                self.start.0..=self.end.0
+            } else {
+                self.end.0..=self.start.0
+            };
+            let y_rev = self.start.1 < self.end.1;
+            let y_range = if y_rev {
+                self.start.1..=self.end.1
+            } else {
+                self.end.1..=self.start.1
+            };
+            for (x, y) in (if x_rev {
+                x_range.rev().collect::<Vec<i32>>()
+            } else {
+                x_range.collect::<Vec<i32>>()
+            })
+            .iter()
+            .zip(if y_rev {
+                y_range.rev().collect::<Vec<i32>>()
+            } else {
+                y_range.collect::<Vec<i32>>()
+            }) {
+                points.push(Point(*x, y));
             }
         }
         points
@@ -76,7 +106,7 @@ fn count_overlaps(points: &[Point]) -> u32 {
     }
 
     let mut overlaps: u32 = 0;
-    for (_key, value) in points_hash {
+    for (key, value) in points_hash {
         if value > 1 {
             overlaps += 1;
         }
@@ -88,17 +118,19 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     let file_lines = utils::read_file(&args[1]);
 
-    let lines: Vec<Line> = file_lines
-        .iter()
-        .map(|l| l.parse().unwrap())
-        .filter(|l: &Line| l.is_vertical() | l.is_horizontal())
-        .collect();
+    let lines: Vec<Line> = file_lines.iter().map(|l| l.parse().unwrap()).collect();
     let all_line_points: Vec<Point> = lines
         .iter()
         .flat_map(|line| line.all_points(false))
         .collect();
     let part_1_overlaps = count_overlaps(&all_line_points);
-    println!("Overlaps: {}", part_1_overlaps);
+    println!("Overlaps Part 1: {}", part_1_overlaps);
+    let all_line_points_with_diagonals: Vec<Point> = lines
+        .iter()
+        .flat_map(|line| line.all_points(true))
+        .collect();
+    let part_2_overlaps = count_overlaps(&all_line_points_with_diagonals);
+    println!("Overlaps Part 2: {}", part_2_overlaps);
 }
 
 #[test]
@@ -112,6 +144,13 @@ fn parse_line() {
             end: Point(5, 9)
         }
     );
+}
+
+#[test]
+fn is_diagonal_test() {
+    let input = "8,0 -> 0,8";
+    let line: Line = input.parse().unwrap();
+    assert!(line.is_diagonal());
 }
 
 // #[test]
