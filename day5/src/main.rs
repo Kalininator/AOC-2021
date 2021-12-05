@@ -143,12 +143,21 @@ fn is_diagonal_test() {
     assert!(line.is_diagonal());
 }
 
-// #[test]
-// fn get_all_points() {
-//     let input = "0,9 -> 5,9";
-//     let line: Line = input.parse().unwrap();
-//     let points = line.all_points();
-// }
+#[test]
+fn get_all_horizontal_points() {
+    let input = "0,9 -> 2,9";
+    let line: Line = input.parse().unwrap();
+    let points = line.all_points(false);
+    assert_eq!(points, vec![Point(0, 9), Point(1, 9), Point(2, 9)]);
+}
+
+#[test]
+fn get_all_diagonal_points() {
+    let input = "3,1 -> 1,3";
+    let line: Line = input.parse().unwrap();
+    let points = line.all_points(true);
+    assert_eq!(points, vec![Point(3, 1), Point(2, 2), Point(1, 3)]);
+}
 
 // #[test]
 // fn line_does_collide() {
