@@ -96,7 +96,7 @@ fn count_overlaps(points: &[Point]) -> u32 {
     }
 
     let mut overlaps: u32 = 0;
-    for (key, value) in points_hash {
+    for (_key, value) in points_hash {
         if value > 1 {
             overlaps += 1;
         }
