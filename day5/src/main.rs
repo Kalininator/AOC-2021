@@ -158,10 +158,3 @@ fn get_all_diagonal_points() {
     let points = line.all_points(true);
     assert_eq!(points, vec![Point(3, 1), Point(2, 2), Point(1, 3)]);
 }
-
-// #[test]
-// fn line_does_collide() {
-//     let l1: Line = "0,9 -> 5,9".parse().unwrap();
-//     let l2: Line = "0,9 -> 2,9".parse().unwrap();
-//     assert_eq!(lines_intersect(&l1, &l2).is_none(), true);
-// }
