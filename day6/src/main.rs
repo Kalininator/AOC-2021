@@ -4,43 +4,28 @@
 
 type Fish = u8;
 
-fn next_day(fish: &mut Vec<Fish>) {
-    let mut new_fish: Vec<Fish> = vec![];
-    for f in fish.iter_mut() {
-        if *f == 0 {
-            new_fish.push(8);
-            *f = 6;
-            // reproduce
-        } else {
-            *f -= 1;
-        }
-    }
-    fish.append(&mut new_fish);
-}
-
-fn next_day_fast(fish_at_days: &mut [u128; 9]) {
+fn next_day(fish_at_days: &mut Vec<u128>) {
     let fish_to_reproduce = fish_at_days[0];
-    fish_at_days[0] = fish_at_days[1];
-    fish_at_days[1] = fish_at_days[2];
-    fish_at_days[2] = fish_at_days[3];
-    fish_at_days[3] = fish_at_days[4];
-    fish_at_days[4] = fish_at_days[5];
-    fish_at_days[5] = fish_at_days[6];
-    fish_at_days[6] = fish_at_days[7] + fish_to_reproduce;
-    fish_at_days[7] = fish_at_days[8];
-    fish_at_days[8] = fish_to_reproduce;
+    fish_at_days.drain(0..1);
+    fish_at_days.push(fish_to_reproduce);
+    fish_at_days[6] += fish_to_reproduce;
 }
 
 fn simulate_days(fish: &[Fish], days: u32) -> u128 {
     let collection = fish.to_owned();
-    let mut fish_at_days: [u128; 9] = [0; 9];
-    for fish in collection {
-        fish_at_days[fish as usize] += 1;
-    }
+    let mut fish_at_days = parse_fish_to_days(collection);
     for _ in 0..days {
-        next_day_fast(&mut fish_at_days);
+        next_day(&mut fish_at_days);
     }
     fish_at_days.iter().sum()
+}
+
+fn parse_fish_to_days(fish: Vec<Fish>) -> Vec<u128> {
+    let mut fish_at_days: Vec<u128> = vec![0; 9];
+    for f in fish {
+        fish_at_days[f as usize] += 1;
+    }
+    fish_at_days
 }
 
 fn main() {
@@ -57,10 +42,8 @@ fn main() {
 }
 
 #[test]
-fn next_day_test() {
-    let mut fish: Vec<Fish> = vec![3, 4, 3, 1, 2];
-    for _ in 0..80 {
-        next_day(&mut fish);
-    }
-    assert_eq!(fish.len(), 5934);
+fn simulate_days_test() {
+    let fish: Vec<Fish> = vec![3, 4, 3, 1, 2];
+    let count = simulate_days(&fish, 80);
+    assert_eq!(count, 5934);
 }
