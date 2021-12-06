@@ -18,13 +18,29 @@ fn next_day(fish: &mut Vec<Fish>) {
     fish.append(&mut new_fish);
 }
 
-fn simulate_days(fish: &Vec<Fish>, days: u32) -> usize {
-    let mut collection = fish.clone();
-    for i in 0..days {
-        println!("Day {}", i);
-        next_day(&mut collection);
+fn next_day_fast(fish_at_days: &mut [u128; 9]) {
+    let fish_to_reproduce = fish_at_days[0];
+    fish_at_days[0] = fish_at_days[1];
+    fish_at_days[1] = fish_at_days[2];
+    fish_at_days[2] = fish_at_days[3];
+    fish_at_days[3] = fish_at_days[4];
+    fish_at_days[4] = fish_at_days[5];
+    fish_at_days[5] = fish_at_days[6];
+    fish_at_days[6] = fish_at_days[7] + fish_to_reproduce;
+    fish_at_days[7] = fish_at_days[8];
+    fish_at_days[8] = fish_to_reproduce;
+}
+
+fn simulate_days(fish: &[Fish], days: u32) -> u128 {
+    let collection = fish.to_owned();
+    let mut fish_at_days: [u128; 9] = [0; 9];
+    for fish in collection {
+        fish_at_days[fish as usize] += 1;
     }
-    collection.len()
+    for _ in 0..days {
+        next_day_fast(&mut fish_at_days);
+    }
+    fish_at_days.iter().sum()
 }
 
 fn main() {
