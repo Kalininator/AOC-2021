@@ -1,6 +1,6 @@
-fn part_one(crabs: &Vec<i32>) -> i32 {
-    let mut sorted_crabs = crabs.clone();
-    sorted_crabs.sort();
+fn part_one(crabs: &[i32]) -> i32 {
+    let mut sorted_crabs = crabs.to_owned();
+    sorted_crabs.sort_unstable();
     let average_position = sorted_crabs[crabs.len() / 2];
     sorted_crabs
         .iter()
@@ -8,12 +8,12 @@ fn part_one(crabs: &Vec<i32>) -> i32 {
         .sum()
 }
 
-fn part_two(crabs: &Vec<i32>) -> i32 {
-    let mut sorted_crabs = crabs.clone();
-    sorted_crabs.sort();
+fn part_two(crabs: &[i32]) -> i32 {
+    let mut sorted_crabs = crabs.to_owned();
+    sorted_crabs.sort_unstable();
     let mut costs: Vec<i32> = vec![];
-    let min = sorted_crabs.iter().copied().min().unwrap();
-    let max = sorted_crabs.iter().copied().max().unwrap();
+    let min = *sorted_crabs.first().unwrap();
+    let max = *sorted_crabs.last().unwrap();
     for position in min..=max {
         costs.push(
             crabs
