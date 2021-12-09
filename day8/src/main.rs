@@ -95,7 +95,7 @@ fn decipher_line(line: &str) -> u32 {
     1
 }
 
-fn parse<'a>(input: &'a str) -> Vec<(Vec<&'a str>, Vec<&'a str>)> {
+fn parse(input: &str) -> Vec<(Vec<&str>, Vec<&str>)> {
     input
         .split('\n')
         .filter(|line| !line.is_empty())
