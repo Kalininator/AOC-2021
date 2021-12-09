@@ -65,36 +65,6 @@ fn part_one(lines: &[String]) {
     println!("Part one: {}", acc);
 }
 
-fn find_value(map: &HashMap<String, u8>, value: u8) -> Option<&String> {
-    map.iter()
-        .find_map(|(key, &val)| if val == value { Some(key) } else { None })
-}
-
-fn decipher_line(line: &str) -> u32 {
-    let (patterns, digits) = parse_line(line);
-    let mut map = create_hashmap(&patterns);
-    let patterns: Vec<Pattern> = patterns
-        .iter()
-        .map(|p| {
-            if p.value.is_none()
-                && p.text.len() == 5
-                && p.text.contains(find_value(&map, 1).unwrap())
-            {
-                map.insert(p.text.clone(), 3);
-                return Pattern {
-                    text: p.text.clone(),
-                    value: Some(3),
-                };
-            }
-            Pattern {
-                text: p.text.clone(),
-                value: None,
-            }
-        })
-        .collect();
-    1
-}
-
 fn parse(input: &str) -> Vec<(Vec<&str>, Vec<&str>)> {
     input
         .split('\n')
@@ -215,7 +185,7 @@ fn part_two() {
 
 fn sort_string(s: &str) -> String {
     let mut bytes: Vec<_> = s.bytes().collect();
-    bytes.sort();
+    bytes.sort_unstable();
     unsafe { String::from_utf8_unchecked(bytes) }
 }
 
