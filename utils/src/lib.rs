@@ -7,3 +7,7 @@ pub fn read_file(path: &str) -> Vec<String> {
 
     br.lines().map(|l| l.expect("Failed to get line")).collect()
 }
+
+pub fn read_full_file(path: &str) -> String {
+    fs::read_to_string(path).expect("Failed to read file")
+}
