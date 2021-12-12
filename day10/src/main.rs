@@ -11,7 +11,7 @@ enum Score {
     Incomplete(u128),
 }
 
-fn first_illegal(line: &str) -> Score {
+fn get_line_score(line: &str) -> Score {
     let mut chars: Vec<char> = vec![];
 
     for char in line.chars() {
@@ -63,7 +63,7 @@ fn first_illegal(line: &str) -> Score {
 
 fn part_one(lines: &[String]) -> u128 {
     let mut acc: u128 = 0;
-    for score in lines.iter().map(|l| first_illegal(l)) {
+    for score in lines.iter().map(|l| get_line_score(l)) {
         if let Score::Illegal(val) = score {
             acc += val
         }
@@ -74,7 +74,7 @@ fn part_one(lines: &[String]) -> u128 {
 fn part_two(lines: &[String]) -> u128 {
     let mut scores: Vec<u128> = lines
         .iter()
-        .map(|l| first_illegal(l))
+        .map(|l| get_line_score(l))
         .filter_map(|score| {
             if let Score::Incomplete(val) = score {
                 return Some(val);
@@ -89,5 +89,11 @@ fn part_two(lines: &[String]) -> u128 {
 #[test]
 fn first_illegal_square() {
     let input = "[[<[([]))<([[{}[[()]]]";
-    assert_eq!(first_illegal(input), Score::Illegal(3));
+    assert_eq!(get_line_score(input), Score::Illegal(3));
+}
+
+#[test]
+fn incomplete() {
+    let input = "<{([{{}}[<[[[<>{}]]]>[]]";
+    assert_eq!(get_line_score(input), Score::Incomplete(294));
 }
