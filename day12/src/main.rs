@@ -31,6 +31,14 @@ fn get_all_paths(map: &HashMap<Cave, Vec<Cave>>) -> Vec<Vec<Cave>> {
     get_paths_to_end(map, Cave::Start, vec![])
 }
 
+fn can_visit_cave(path: &[Cave], cave: Cave) -> bool {
+    match cave {
+        Cave::Small(_) => !path.contains(&cave),
+        Cave::Start => false,
+        _ => true,
+    }
+}
+
 fn get_paths_to_end(map: &HashMap<Cave, Vec<Cave>>, from: Cave, path: Vec<Cave>) -> Vec<Vec<Cave>> {
     // println!("Path {:?} moving to {:?}", path, from);
     // If reached end then we good
@@ -39,11 +47,7 @@ fn get_paths_to_end(map: &HashMap<Cave, Vec<Cave>>, from: Cave, path: Vec<Cave>)
     }
     let mut links = map.get(&from).unwrap_or(&vec![]).clone();
     // remove small caves that have been visited
-    links.retain(|link| match link {
-        Cave::Small(cave) => !path.contains(&Cave::Small(cave.clone())),
-        Cave::Start => false,
-        _ => true,
-    });
+    links.retain(|link| can_visit_cave(&path, link.clone()));
     if links.is_empty() {
         return vec![path];
     }
