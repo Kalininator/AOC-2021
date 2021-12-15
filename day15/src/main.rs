@@ -53,15 +53,15 @@ fn shortest_path(graph: &[Vec<u32>], start: Point, end: Point) -> u32 {
 fn extend_graph(graph: Vec<Vec<u32>>) -> Vec<Vec<u32>> {
     let size = graph.len();
     let mut extended = vec![vec![0; size * 5]; size * 5];
-    for roff in 0..5 {
+    for row_offset in 0..5 {
         for (r, row) in graph.iter().enumerate() {
-            for coff in 0..5 {
+            for column_offset in 0..5 {
                 for (c, &val) in row.iter().enumerate() {
                     let mut new_val = val;
-                    for _ in 0..(coff + roff) {
+                    for _ in 0..(column_offset + row_offset) {
                         new_val = if new_val == 9 { 1 } else { new_val + 1 };
                     }
-                    extended[roff * size + r][coff * size + c] = new_val;
+                    extended[row_offset * size + r][column_offset * size + c] = new_val;
                 }
             }
         }
