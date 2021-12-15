@@ -26,10 +26,9 @@ fn to_index(p: Point, l: usize) -> usize {
     p.1 * l + p.0
 }
 
-fn shortest_path(graph: &[Vec<u32>], start: Point, end: Point) -> (Vec<Point>, u32) {
+fn shortest_path(graph: &[Vec<u32>], start: Point, end: Point) -> u32 {
     let size = graph.len();
 
-    // Initialize
     let mut distance = vec![None; size * size];
     let mut predecessors = vec![None; size * size];
     distance[to_index(start, size)] = Some(0);
@@ -37,30 +36,18 @@ fn shortest_path(graph: &[Vec<u32>], start: Point, end: Point) -> (Vec<Point>, u
     let mut heap = BinaryHeap::new();
     heap.push(Reverse((0, start)));
 
-    // Always get the node with the smallest distance.
     while let Some(Reverse((dist, pos))) = heap.pop() {
-        // let iter = StraightNeighbourIterator::new(pos, size);
         for neighbour in get_adjacents(graph, pos) {
-            let nidx = to_index(neighbour, size);
-            // Update distance
+            let neighbour_index = to_index(neighbour, size);
             let new_dist = dist + graph[neighbour.1][neighbour.0];
-            if distance[nidx].map_or(true, |old_dist| new_dist < old_dist) {
+            if distance[neighbour_index].map_or(true, |old_dist| new_dist < old_dist) {
                 heap.push(Reverse((new_dist, neighbour)));
-                distance[nidx] = Some(new_dist);
-                predecessors[nidx] = Some(pos);
+                distance[neighbour_index] = Some(new_dist);
+                predecessors[neighbour_index] = Some(pos);
             }
         }
     }
-
-    // Build path (optional for the task)
-    let mut path = vec![end];
-    let mut pos = end;
-    while let Some(pred) = predecessors[to_index(pos, size)] {
-        pos = pred;
-        path.push(pos);
-    }
-    path.reverse();
-    (path, distance[to_index(end, size)].unwrap_or(u32::MAX))
+    distance[to_index(end, size)].unwrap_or(u32::MAX)
 }
 
 fn extend_graph(graph: Vec<Vec<u32>>) -> Vec<Vec<u32>> {
@@ -90,11 +77,11 @@ fn main() {
         .iter()
         .map(|l| l.chars().map(|c| c.to_digit(10).unwrap()).collect())
         .collect();
-    let (_, total_risk) = shortest_path(&rows, (0, 0), (rows.len() - 1, rows.len() - 1));
+    let total_risk = shortest_path(&rows, (0, 0), (rows.len() - 1, rows.len() - 1));
     println!("Risk: {}", total_risk);
 
     let extended_graph = extend_graph(rows);
-    let (_, total_risk_extended) = shortest_path(
+    let total_risk_extended = shortest_path(
         &extended_graph,
         (0, 0),
         (extended_graph.len() - 1, extended_graph.len() - 1),
