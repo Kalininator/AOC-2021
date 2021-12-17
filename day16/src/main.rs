@@ -1,3 +1,4 @@
+use num_bigint::BigUint;
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let lines = utils::read_file(&args[1]);
@@ -49,6 +50,7 @@ fn parse_transmission(bools: &mut Vec<bool>) -> Vec<Packet> {
         println!("Operator packet");
         let length_type_id = bools.drain(0..1).next().unwrap();
         let mut subpackets: Vec<Packet> = vec![];
+        let mut subpacket_values: Vec<u128> = vec![];
         match length_type_id {
             false => {
                 let mut total_length_in_bits =
@@ -57,7 +59,7 @@ fn parse_transmission(bools: &mut Vec<bool>) -> Vec<Packet> {
                 while total_length_in_bits > 0 {
                     let len_before = bools.len();
                     let mut new_packets = parse_transmission(bools);
-                    println!("Found packets: {:?}", new_packets);
+                    subpacket_values.push(new_packets[0].value);
                     subpackets.append(&mut new_packets);
                     total_length_in_bits -= len_before - bools.len();
                 }
@@ -66,39 +68,36 @@ fn parse_transmission(bools: &mut Vec<bool>) -> Vec<Packet> {
                 let number_subpackets = binary_to_decimal(&bools.drain(0..11).collect());
                 println!("Number of subpackets: {}", number_subpackets);
                 for _ in 0..number_subpackets {
-                    subpackets.append(&mut parse_transmission(bools));
+                    let mut new_packets = parse_transmission(bools);
+                    subpacket_values.push(new_packets[0].value);
+                    subpackets.append(&mut new_packets);
                 }
             }
         }
 
+        println!("subpacket values: {:?}", subpacket_values);
+        println!("subpackets: {:?}", subpackets);
         let value: u128 = match type_id {
-            0 => subpackets.iter().map(|p| p.value).sum(),
-            1 => {
-                let mut acc = subpackets[0].value;
-                for i in 1..subpackets.len() {
-                    println!("multiply {} by {}", acc, subpackets[i].value);
-                    acc *= subpackets[i].value;
-                }
-                acc
-            }
-            2 => subpackets.iter().map(|p| p.value).min().unwrap(),
-            3 => subpackets.iter().map(|p| p.value).max().unwrap(),
+            0 => subpacket_values.iter().sum(),
+            1 => subpacket_values.iter().product(),
+            2 => *subpacket_values.iter().min().unwrap(),
+            3 => *subpacket_values.iter().max().unwrap(),
             5 => {
-                if subpackets[0].value > subpackets[1].value {
+                if subpacket_values[0] > subpacket_values[1] {
                     1
                 } else {
                     0
                 }
             }
             6 => {
-                if subpackets[0].value < subpackets[1].value {
+                if subpacket_values[0] < subpacket_values[1] {
                     1
                 } else {
                     0
                 }
             }
             7 => {
-                if subpackets[0].value == subpackets[1].value {
+                if subpacket_values[0] == subpacket_values[1] {
                     1
                 } else {
                     0
@@ -187,7 +186,7 @@ mod tests {
                 Packet {
                     version: 7,
                     type_id: 3,
-                    value: 0
+                    value: 3
                 },
                 Packet {
                     version: 2,
@@ -218,7 +217,7 @@ mod tests {
                 Packet {
                     version: 1,
                     type_id: 6,
-                    value: 0
+                    value: 1
                 },
                 Packet {
                     version: 6,
@@ -246,17 +245,17 @@ mod tests {
                 Packet {
                     version: 4,
                     type_id: 2,
-                    value: 0
+                    value: 15
                 },
                 Packet {
                     version: 1,
                     type_id: 2,
-                    value: 0
+                    value: 15
                 },
                 Packet {
                     version: 5,
                     type_id: 2,
-                    value: 0
+                    value: 15
                 },
                 Packet {
                     version: 6,
@@ -265,5 +264,21 @@ mod tests {
                 },
             ]
         );
+    }
+
+    #[test]
+    fn product() {
+        let input = "04005AC33890";
+        let mut binary = parse_hex(input);
+        let packets = parse_transmission(&mut binary);
+        assert_eq!(packets[0].value, 54);
+    }
+
+    #[test]
+    fn product_2() {
+        let input = "9C0141080250320F1802104A08";
+        let mut binary = parse_hex(input);
+        let packets = parse_transmission(&mut binary);
+        assert_eq!(packets[0].value, 1);
     }
 }
