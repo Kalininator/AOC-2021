@@ -1,4 +1,3 @@
-use num_bigint::BigUint;
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let lines = utils::read_file(&args[1]);
@@ -6,7 +5,6 @@ fn main() {
 
     let packets = parse_transmission(&mut binary);
     let version_sum: u128 = packets.iter().map(|p| p.version).sum();
-    println!("Packets: {:?}", packets);
     println!("Part 1: {}", version_sum);
     println!("Outermost value: {}", packets[0].value);
 }
@@ -25,8 +23,6 @@ fn parse_transmission(bools: &mut Vec<bool>) -> Vec<Packet> {
     let type_id = binary_to_decimal(&bools.drain(0..3).collect());
 
     if type_id == 4 {
-        println!("Literal packet");
-        // Literal value
         let mut value_bools: Vec<bool> = vec![];
         while bools.len() >= 5 {
             let group_bools: Vec<bool> = bools.drain(0..5).collect();
@@ -47,7 +43,6 @@ fn parse_transmission(bools: &mut Vec<bool>) -> Vec<Packet> {
             value,
         });
     } else {
-        println!("Operator packet");
         let length_type_id = bools.drain(0..1).next().unwrap();
         let mut subpackets: Vec<Packet> = vec![];
         let mut subpacket_values: Vec<u128> = vec![];
@@ -55,7 +50,6 @@ fn parse_transmission(bools: &mut Vec<bool>) -> Vec<Packet> {
             false => {
                 let mut total_length_in_bits =
                     binary_to_decimal(&bools.drain(0..15).collect()) as usize;
-                println!("Total length in bits: {}", total_length_in_bits);
                 while total_length_in_bits > 0 {
                     let len_before = bools.len();
                     let mut new_packets = parse_transmission(bools);
@@ -66,7 +60,6 @@ fn parse_transmission(bools: &mut Vec<bool>) -> Vec<Packet> {
             }
             true => {
                 let number_subpackets = binary_to_decimal(&bools.drain(0..11).collect());
-                println!("Number of subpackets: {}", number_subpackets);
                 for _ in 0..number_subpackets {
                     let mut new_packets = parse_transmission(bools);
                     subpacket_values.push(new_packets[0].value);
@@ -75,8 +68,6 @@ fn parse_transmission(bools: &mut Vec<bool>) -> Vec<Packet> {
             }
         }
 
-        println!("subpacket values: {:?}", subpacket_values);
-        println!("subpackets: {:?}", subpackets);
         let value: u128 = match type_id {
             0 => subpacket_values.iter().sum(),
             1 => subpacket_values.iter().product(),
