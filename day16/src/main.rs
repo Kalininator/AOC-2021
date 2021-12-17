@@ -7,13 +7,14 @@ fn main() {
     let version_sum: u128 = packets.iter().map(|p| p.version).sum();
     println!("Packets: {:?}", packets);
     println!("Part 1: {}", version_sum);
+    println!("Outermost value: {}", packets[0].value);
 }
 
 #[derive(Debug, PartialEq, Eq, Hash, Clone, Copy)]
 struct Packet {
     version: u128,
     type_id: u128,
-    value: Option<u128>,
+    value: u128,
 }
 
 fn parse_transmission(bools: &mut Vec<bool>) -> Vec<Packet> {
@@ -42,16 +43,11 @@ fn parse_transmission(bools: &mut Vec<bool>) -> Vec<Packet> {
         packets.push(Packet {
             version,
             type_id,
-            value: Some(value),
+            value,
         });
     } else {
         println!("Operator packet");
         let length_type_id = bools.drain(0..1).next().unwrap();
-        packets.push(Packet {
-            version,
-            type_id,
-            value: None,
-        });
         let mut subpackets: Vec<Packet> = vec![];
         match length_type_id {
             false => {
@@ -74,6 +70,48 @@ fn parse_transmission(bools: &mut Vec<bool>) -> Vec<Packet> {
                 }
             }
         }
+
+        let value: u128 = match type_id {
+            0 => subpackets.iter().map(|p| p.value).sum(),
+            1 => {
+                let mut acc = subpackets[0].value;
+                for i in 1..subpackets.len() {
+                    println!("multiply {} by {}", acc, subpackets[i].value);
+                    acc *= subpackets[i].value;
+                }
+                acc
+            }
+            2 => subpackets.iter().map(|p| p.value).min().unwrap(),
+            3 => subpackets.iter().map(|p| p.value).max().unwrap(),
+            5 => {
+                if subpackets[0].value > subpackets[1].value {
+                    1
+                } else {
+                    0
+                }
+            }
+            6 => {
+                if subpackets[0].value < subpackets[1].value {
+                    1
+                } else {
+                    0
+                }
+            }
+            7 => {
+                if subpackets[0].value == subpackets[1].value {
+                    1
+                } else {
+                    0
+                }
+            }
+            _ => panic!("Invalid type_id {}", type_id),
+        };
+
+        packets.push(Packet {
+            version,
+            type_id,
+            value,
+        });
         packets.append(&mut subpackets);
     }
 
@@ -134,7 +172,7 @@ mod tests {
             vec![Packet {
                 version: 6,
                 type_id: 4,
-                value: Some(2021)
+                value: 2021
             }]
         );
     }
@@ -149,22 +187,22 @@ mod tests {
                 Packet {
                     version: 7,
                     type_id: 3,
-                    value: None
+                    value: 0
                 },
                 Packet {
                     version: 2,
                     type_id: 4,
-                    value: Some(1)
+                    value: 1
                 },
                 Packet {
                     version: 4,
                     type_id: 4,
-                    value: Some(2)
+                    value: 2
                 },
                 Packet {
                     version: 1,
                     type_id: 4,
-                    value: Some(3)
+                    value: 3
                 },
             ]
         );
@@ -180,17 +218,17 @@ mod tests {
                 Packet {
                     version: 1,
                     type_id: 6,
-                    value: None
+                    value: 0
                 },
                 Packet {
                     version: 6,
                     type_id: 4,
-                    value: Some(10)
+                    value: 10
                 },
                 Packet {
                     version: 2,
                     type_id: 4,
-                    value: Some(20)
+                    value: 20
                 },
             ]
         );
@@ -208,22 +246,22 @@ mod tests {
                 Packet {
                     version: 4,
                     type_id: 2,
-                    value: None
+                    value: 0
                 },
                 Packet {
                     version: 1,
                     type_id: 2,
-                    value: None
+                    value: 0
                 },
                 Packet {
                     version: 5,
                     type_id: 2,
-                    value: None
+                    value: 0
                 },
                 Packet {
                     version: 6,
                     type_id: 4,
-                    value: Some(15)
+                    value: 15
                 },
             ]
         );
