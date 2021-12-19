@@ -158,8 +158,6 @@ fn part2(plane: &BeaconMap) -> usize {
     plane
         .total_distances
         .iter()
-        // For at least 12 intersections with rotation, we need 12 choose 2 = 66 intersections of beacon distances.
-        // We can skip impossible reading matches by checking this condition first.
         .tuple_combinations()
         .map(|([x1, y1, z1], [x2, y2, z2])| (x1 - x2).abs() + (y1 - y2).abs() + (z1 - z2).abs())
         .max()
