@@ -34,21 +34,12 @@ impl BeaconMap {
         beacon_distance_sets: &mut Vec<FxHashSet<usize>>,
         reading: &ScanResults,
     ) -> Option<Point> {
-        // For at least 12 intersections with rotation, we need 12 choose 2 = 66 intersections of beacon distances.
-        // We can skip impossible reading matches by checking this condition first.
-        let scanner_intersections = beacon_distance_sets
-            .iter()
-            .filter(|set| set.intersection(&reading.beacon_distances).count() >= 66)
-            .count();
-        if scanner_intersections == 0 {
-            return None;
-        }
-        for r in 0..24 {
+        for rotation in 0..24 {
             let rotated = reading
                 .beacons
                 .iter()
-                .map(|&v| get_orientation(v, r))
-                .collect::<Vec<_>>();
+                .map(|&beacon_location| get_orientation(beacon_location, rotation))
+                .collect::<Vec<Point>>();
             let distances = beacon_locations
                 .iter()
                 .cartesian_product(&rotated)
