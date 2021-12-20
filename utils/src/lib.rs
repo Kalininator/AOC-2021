@@ -11,3 +11,14 @@ pub fn read_file(path: &str) -> Vec<String> {
 pub fn read_full_file(path: &str) -> String {
     fs::read_to_string(path).expect("Failed to read file")
 }
+
+pub fn binary_to_decimal(bools: Vec<bool>) -> u32 {
+    let mut acc: u32 = 0;
+    for i in bools {
+        match i {
+            true => acc = (acc * 2) + 1,
+            false => acc *= 2,
+        }
+    }
+    acc
+}
