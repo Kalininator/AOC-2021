@@ -31,10 +31,9 @@ fn move_places(place: &mut u128, places: u128) {
         *place -= 10;
     }
 }
-fn part_one(lines: &[String]) -> u128 {
-    let mut p1_place = sscanf::scanf!(lines[0], "Player 1 starting position: {}", u128).unwrap();
-    let mut p2_place = sscanf::scanf!(lines[1], "Player 2 starting position: {}", u128).unwrap();
-
+fn part_one(p1_place: u128, p2_place: u128) -> u128 {
+    let mut p1_place = p1_place;
+    let mut p2_place = p2_place;
     let mut dice = Dice::new();
     let mut p1_score = 0u128;
     let mut p2_score = 0u128;
@@ -113,9 +112,7 @@ fn solve_recursive(state: GameState, cache: &mut HashMap<GameState, (u128, u128)
     (total_p1_wins, total_p2_wins)
 }
 
-fn part_two(lines: &[String]) -> u128 {
-    let p1_place = sscanf::scanf!(lines[0], "Player 1 starting position: {}", u128).unwrap();
-    let p2_place = sscanf::scanf!(lines[1], "Player 2 starting position: {}", u128).unwrap();
+fn part_two(p1_place: u128, p2_place: u128) -> u128 {
     let (p1_wins, p2_wins) = solve_recursive(
         GameState {
             p1_score: 0,
@@ -135,7 +132,19 @@ fn part_two(lines: &[String]) -> u128 {
 fn main() {
     let args: Vec<String> = std::env::args().collect();
     let lines = utils::read_file(&args[1]);
+    let p1_place = sscanf::scanf!(lines[0], "Player 1 starting position: {}", u128).unwrap();
+    let p2_place = sscanf::scanf!(lines[1], "Player 2 starting position: {}", u128).unwrap();
 
-    println!("Part one: {}", part_one(&lines));
-    println!("Part two: {}", part_two(&lines));
+    println!("Part one: {}", part_one(p1_place, p2_place));
+    println!("Part two: {}", part_two(p1_place, p2_place));
+}
+
+#[test]
+fn part_one_test() {
+    assert_eq!(part_one(4, 8), 739785);
+}
+
+#[test]
+fn part_two_test() {
+    assert_eq!(part_two(4, 8), 444356092776315);
 }
