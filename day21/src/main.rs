@@ -44,7 +44,6 @@ fn part_one(lines: &[String]) -> u128 {
         move_places(&mut p1_place, dice.next() + dice.next() + dice.next());
         p1_score += p1_place;
         if p1_score >= 1000 {
-            println!("P1 Won");
             return p2_score * dice.rolls;
         }
 
@@ -52,7 +51,6 @@ fn part_one(lines: &[String]) -> u128 {
         move_places(&mut p2_place, dice.next() + dice.next() + dice.next());
         p2_score += p2_place;
         if p2_score >= 1000 {
-            println!("P2 Won");
             return p1_score * dice.rolls;
         }
     }
