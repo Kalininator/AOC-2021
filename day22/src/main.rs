@@ -56,10 +56,7 @@ impl FromStr for Step {
     }
 }
 
-fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    let lines = utils::read_file(&args[1]);
-    let steps: Vec<Step> = lines.iter().map(|l| l.parse().unwrap()).collect();
+fn part_one(steps: &[Step]) -> usize {
     let mut set: HashSet<Point> = HashSet::new();
     for s in steps {
         for x in max(s.x1, -50)..=min(s.x2, 50) {
@@ -73,5 +70,12 @@ fn main() {
             }
         }
     }
-    println!("Number turned on: {}", set.len());
+    set.len()
+}
+
+fn main() {
+    let args: Vec<String> = std::env::args().collect();
+    let lines = utils::read_file(&args[1]);
+    let steps: Vec<Step> = lines.iter().map(|l| l.parse().unwrap()).collect();
+    println!("Part one: {}", part_one(&steps));
 }
