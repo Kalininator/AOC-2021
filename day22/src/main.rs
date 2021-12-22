@@ -4,15 +4,15 @@ use std::num::ParseIntError;
 use std::str::FromStr;
 
 #[derive(Hash, PartialEq, Eq)]
-struct Cuboid {
+struct Point {
     x: i32,
     y: i32,
     z: i32,
 }
 
-impl Cuboid {
+impl Point {
     fn new(x: i32, y: i32, z: i32) -> Self {
-        Cuboid { x, y, z }
+        Point { x, y, z }
     }
 }
 
@@ -60,14 +60,14 @@ fn main() {
     let args: Vec<String> = std::env::args().collect();
     let lines = utils::read_file(&args[1]);
     let steps: Vec<Step> = lines.iter().map(|l| l.parse().unwrap()).collect();
-    let mut set: HashSet<Cuboid> = HashSet::new();
+    let mut set: HashSet<Point> = HashSet::new();
     for s in steps {
         for x in max(s.x1, -50)..=min(s.x2, 50) {
             for y in max(s.y1, -50)..=min(s.y2, 50) {
                 for z in max(s.z1, -50)..=min(s.z2, 50) {
                     match s.turn_on {
-                        true => set.insert(Cuboid::new(x, y, z)),
-                        false => set.remove(&Cuboid::new(x, y, z)),
+                        true => set.insert(Point::new(x, y, z)),
+                        false => set.remove(&Point::new(x, y, z)),
                     };
                 }
             }
